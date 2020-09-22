@@ -2,6 +2,9 @@
 // This statement sets the execution mode to verbose to produce messages in the terminal regarding the state of the runtime. This feature can help explain what the application is doing, specifically SQLite.
 const sqlite3 = require('sqlite3').verbose();
 
+//import inputCheck NPM module
+const inputCheck = require('./utils/inputCheck');
+
 const express = require('express');
 
 const PORT = process.env.PORT || 3001;
@@ -90,6 +93,41 @@ app.delete('/api/candidate/:id', (req, res) => {
 // }
 // console.log(result, this.lastID);
 // });
+
+// Create a candidate
+//using HTTP request method post ()
+//insert a candidate into the candidates table
+//In the callback function, we use the object req.body to populate the candidate's data. Using body destructing to pull the body out of the request object.
+app.post('/api/candidate', ({ body }, res) => {
+    //we assign errors to receive the return from the inputCheck function
+    const errors = inputCheck(body, 'first_name', 'last_name', 'industry_connected');
+    if (errors) {
+      res.status(400).json({ error: errors });
+      return;
+    }
+    //database call
+    //the statement we need to run to add to the database is saved into constant sql. 
+    const sql = `INSERT INTO candidates (first_name, last_name, industry_connected) 
+              VALUES (?,?,?)`;
+    //params assignment
+    //the user input we need to enter a new candidate is saved into params constant.
+    //contains three elements in its array that contains the user data collected in req.body
+    const params = [body.first_name, body.last_name, body.industry_connected];
+    // ES5 function, not arrow function, to use `this`
+    //Using the run() method, we can execute the prepared SQL statement. We use the ES5 function in the callback to use the Statement object that's bound to this.
+    db.run(sql, params, function(err, result) {
+    if (err) {
+        res.status(400).json({ error: err.message });
+        return;
+    }
+    //send the response using the res.json() method with this.lastID, the id of the inserted row
+    res.json({
+        message: 'success',
+        data: body,
+        id: this.lastID
+    });
+});
+  });
 
 //Express route to page
 app.get('/', (req, res) => {

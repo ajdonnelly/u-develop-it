@@ -1,6 +1,7 @@
 -- This will drop/delete the tables every time you run the migration script, thus ensuring you're starting with a clean slate.--
 DROP TABLE IF EXISTS parties;
 DROP TABLE IF EXISTS candidates;
+DROP TABLE IF EXISTS voters;
 
 CREATE TABLE candidates (
   id INTEGER PRIMARY KEY,
@@ -16,4 +17,14 @@ CREATE TABLE parties (
   id INTEGER PRIMARY KEY,
   name VARCHAR(50) NOT NULL,
   description TEXT
+);
+
+CREATE TABLE voters (
+  id INTEGER PRIMARY KEY,
+  first_name VARCHAR(30) NOT NULL,
+  last_name VARCHAR(30) NOT NULL,
+  email VARCHAR(50) NOT NULL,
+ -- With DEFAULT, however, you can specify what the value should be if no value is provided--
+  -- in our code we're specifying CURRENT_TIMESTAMP as the value for DEFAULT--
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
